@@ -1,0 +1,39 @@
+# ---------------------------------------------------------------------------
+# hive-restored — .gitignore
+# ---------------------------------------------------------------------------
+
+# ---- Node / npm ----
+node_modules/
+.npm/
+*.tgz
+package-lock.json
+
+# ---- TypeScript build output ----
+dist/
+*.js.map
+*.d.ts.map
+*.tsbuildinfo
+
+# ---- Devvit CLI artefacts ----
+.devvit/
+devvit-metadata.json
+
+# ---- Environment & secrets ----
+.env
+.env.*
+.dev.vars
+
+# ---- Editor & OS ----
+.DS_Store
+.idea/
+.vscode/settings.json
+.cursor/
+*.swp
+*.swo
+Thumbs.db
+
+# ---- Test artefacts ----
+coverage/
+.vitest/
+.claude/
+.pi/

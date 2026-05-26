@@ -1,0 +1,28 @@
+@import 'tailwindcss';
+
+@keyframes hive-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.shimmer {
+  background-image: linear-gradient(
+    90deg,
+    oklch(0.93 0.018 72) 0%,
+    oklch(0.965 0.012 72) 50%,
+    oklch(0.93 0.018 72) 100%
+  );
+  background-size: 200% 100%;
+  animation: hive-shimmer 1.6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shimmer {
+    animation: none;
+    background: oklch(0.95 0.012 72);
+  }
+}

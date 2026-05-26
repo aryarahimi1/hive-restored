@@ -1,0 +1,113 @@
+{
+  "$schema": "https://developers.reddit.com/schema/config-file.v1.json",
+  "name": "hive-restored",
+  "post": {
+    "dir": "dist/client",
+    "entrypoints": {
+      "default": {
+        "inline": true,
+        "entry": "splash.html"
+      },
+      "game": {
+        "entry": "game.html"
+      }
+    }
+  },
+  "media": {
+    "dir": "public"
+  },
+  "server": {
+    "dir": "dist/server",
+    "entry": "index.cjs"
+  },
+  "forms": {
+    "addPeer": "/internal/forms/add-peer",
+    "applyPreset": "/internal/forms/apply-preset",
+    "modqueueBadge": "/internal/forms/modqueue-badge/submit"
+  },
+  "menu": {
+    "items": [
+      {
+        "label": "Create a new post",
+        "description": "hive-restored",
+        "location": "subreddit",
+        "forUserType": "moderator",
+        "endpoint": "/internal/menu/post-create"
+      },
+      {
+        "label": "Hive: explain this user",
+        "description": "Show the Hive Restored behavioral fingerprint and any peer-match warnings for this comment's author",
+        "location": "comment",
+        "forUserType": "moderator",
+        "endpoint": "/internal/menu/comment-explain"
+      },
+      {
+        "label": "Hive: threat badge",
+        "description": "Modqueue popover — composite score, signals, peer evidence, and optional mod actions",
+        "location": ["post", "comment"],
+        "forUserType": "moderator",
+        "endpoint": "/internal/menu/modqueue-badge/open"
+      },
+      {
+        "label": "Hive: add trusted peer sub",
+        "description": "Add a peer subreddit to the Hive Restored federation trust graph",
+        "location": "subreddit",
+        "forUserType": "moderator",
+        "endpoint": "/internal/menu/add-peer"
+      },
+      {
+        "label": "Hive: list trusted peers",
+        "description": "Show all subreddits in the Hive Restored federation trust graph",
+        "location": "subreddit",
+        "forUserType": "moderator",
+        "endpoint": "/internal/menu/list-peers"
+      },
+      {
+        "label": "Hive: poll peers now",
+        "description": "Immediately poll all trusted peer subreddits for new threat records (normally runs every 2 minutes)",
+        "location": "subreddit",
+        "forUserType": "moderator",
+        "endpoint": "/internal/menu/poll-now"
+      },
+      {
+        "label": "Hive: federation status",
+        "description": "Show a summary of the federation state: trusted peers, last poll time, and indexed threats",
+        "location": "subreddit",
+        "forUserType": "moderator",
+        "endpoint": "/internal/menu/federation-status"
+      },
+      {
+        "label": "Hive: apply trust circle preset",
+        "description": "Add a curated set of trusted peer subreddits to the Hive Restored federation trust graph",
+        "location": "subreddit",
+        "forUserType": "moderator",
+        "endpoint": "/internal/menu/apply-preset"
+      }
+    ]
+  },
+  "permissions": {
+    "reddit": {
+      "enable": true,
+      "scope": "moderator",
+      "asUser": ["SUBMIT_POST", "SUBMIT_COMMENT", "SUBSCRIBE_TO_SUBREDDIT"]
+    }
+  },
+  "triggers": {
+    "onAppInstall": "/internal/triggers/on-app-install",
+    "onCommentSubmit": "/internal/triggers/on-comment-submit",
+    "onPostSubmit": "/internal/triggers/on-post-submit",
+    "onModAction": "/internal/triggers/on-mod-action"
+  },
+  "scheduler": {
+    "tasks": {
+      "pollPeers": {
+        "endpoint": "/internal/scheduler/poll-peers",
+        "cron": "*/2 * * * *"
+      }
+    }
+  },
+  "scripts": {
+    "dev": "vite build --watch",
+    "build": "vite build"
+  }
+}
