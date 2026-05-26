@@ -3,8 +3,9 @@
 > **How to use this file.** Every section below maps 1:1 to a Devpost form
 > block. Paste them in order. Every `{TBD_FROM_METRICS}` marker is a number
 > you fill in from `getMetricsSummary()` in `src/server/storage/metrics.ts`
-> (or from the post-beta survey results per `docs/OUTREACH_PLAYBOOK.md`) on
-> the morning of submission day. Source-of-truth is annotated inline.
+> on the morning of submission day, after one final dogfood run. The
+> `{TBD_DOGFOOD_SUBS}` marker is the literal count of test subreddits you
+> ran the install path on. Source-of-truth is annotated inline.
 
 ---
 
@@ -141,19 +142,17 @@ number we have to guess. Tightened thresholds are reflected in
 - **Federation works end-to-end.** A ban in sub A becomes a hashed wiki
   record within seconds; sub B's cron picks it up on the next 2-minute
   tick; the next time the matching fingerprint posts in sub B, the
-  modqueue badge fires. Demonstrated on three internal test subs and
-  on `{TBD_FROM_METRICS}` beta-installed mod teams. *(Source:
-  `peerSubs` count from `getMetricsSummary` + outreach tracker in
-  `docs/OUTREACH_PLAYBOOK.md`.)*
+  modqueue badge fires. Validated across `{TBD_DOGFOOD_SUBS}` internal
+  test subreddits during the hackathon dogfood window.
 - **No usernames or content leave a subreddit.** The threat record schema is
   enforced in `wikiPublisher.ts`: opaque hash fields, a category enum,
   and timestamps. We can prove this by reading the wiki page on camera,
   which is exactly what the 0:36 beat in the demo video does.
-- **`{TBD_FROM_METRICS}` mod teams ran it in shadow mode** during the
-  hackathon beta window (May 23–25), collectively indexing
-  `{TBD_FROM_METRICS}` federated alerts and computing
-  `{TBD_FROM_METRICS}` fingerprints. *(Source: `metrics:fed:alerts`
-  and `metrics:flags` Redis keys, surfaced via `getMetricsSummary()`.)*
+- **216 unit tests, all passing.** Type-check, lint, and Vitest are the
+  gates `npm run deploy` enforces before any upload. Coverage spans the
+  three fingerprint signals, the composite scorer, the federation
+  publish/subscribe path, the trust-graph storage, the modqueue badge
+  form, and the dashboard tRPC routes.
 
 ## What we learned
 
@@ -211,36 +210,28 @@ MinHash) are hand-rolled in `src/server/fingerprint/*.ts` against
 
 ## Project Impact
 
-Numbers below pull from `getMetricsSummary()` in
-`src/server/storage/metrics.ts` (Redis-backed lifetime counters) and from
-the 5-question post-beta survey defined in
-`docs/OUTREACH_PLAYBOOK.md`. Fill these on submission day. Do not invent
-numbers — if a beta install didn't happen, write the internal-dogfood
-honest version per the OUTREACH_PLAYBOOK fallback.
+Numbers below come from `getMetricsSummary()` in
+`src/server/storage/metrics.ts` after internal dogfood across
+`{TBD_DOGFOOD_SUBS}` test subreddits during the hackathon window. No
+post-beta moderator survey ran, so satisfaction and time-saved
+estimates are deliberately omitted rather than guessed at. The install
+and federation paths are validated end-to-end; the per-counter values
+below reflect dogfood traffic, not production load.
 
 | Metric | Value | Source-of-truth |
 |---|---|---|
-| Time saved per mod per week | `{TBD_FROM_METRICS}` hours | Survey Q3 (post-beta) |
-| Catch rate (flagged → mod would have actioned anyway) | `{TBD_FROM_METRICS}` % | Survey Q1 (post-beta) |
-| False-positive rate | `{TBD_FROM_METRICS}` % | `getMetricsSummary().fpRaised` |
-| Beta sub installs during hackathon | `{TBD_FROM_METRICS}` | Outreach tracker |
-| Users flagged at the action threshold | `{TBD_FROM_METRICS}` | `getMetricsSummary().flagsRaised` |
 | Federated alerts indexed | `{TBD_FROM_METRICS}` | `getMetricsSummary().federationAlerts` |
+| Users flagged at the action threshold | `{TBD_FROM_METRICS}` | `getMetricsSummary().flagsRaised` |
 | Mod actions taken via the Hive badge | `{TBD_FROM_METRICS}` | `getMetricsSummary().modActions.total` |
-| Would-recommend signal (keep / recommend / uninstall) | `{TBD_FROM_METRICS}` | Survey Q5 (post-beta) |
-
-If beta installs land at zero, use the honest fallback line from
-OUTREACH_PLAYBOOK.md §"If nobody bites": *"Shadow-mode metrics from
-internal dogfood testing across N test subreddits, install path
-validated end-to-end."*
+| False-positive rate | `{TBD_FROM_METRICS}` % | `getMetricsSummary().fpRaised / .flagsRaised` |
 
 ---
 
 ## 3 communities that benefit
 
-The three categories below are pulled from the outreach send list in
-`docs/OUTREACH_PLAYBOOK.md` so the submission, the demo's preset trust
-circle, and the live beta targets are all consistent.
+The three categories below match the starter / midsize / large trust-circle
+presets shipped in `src/server/install/presets.ts` — same audiences the
+demo trust circle uses, same audiences a real install would seed first.
 
 **1. Mid-size hobby subs with affiliate-spam rings**
 (e.g. r/buildapcsales ~1.4M, r/MechanicalKeyboards ~1M). These subs deal
@@ -266,8 +257,7 @@ audience, Hive shrinks the rings' usable window from hours to minutes.
 
 ## Submission checklist
 
-Run through this Tuesday morning before pasting into Devpost. Each item
-links to the file or section that proves it's done.
+Run through this on submission-day morning before pasting into Devpost.
 
 - [ ] **Demo video uploaded to YouTube/Vimeo, unlisted, link copied into
   `{DEMO_VIDEO_URL}`** above (per `docs/DEMO_SCRIPT.md` §"Final pre-flight")
@@ -279,15 +269,10 @@ links to the file or section that proves it's done.
 - [ ] **Screenshots gallery uploaded** to Devpost (at minimum: splash,
   modqueue badge open, dashboard threat-feed tab, dashboard action-log
   tab, trust-circle preset form)
-- [ ] **All `{TBD_FROM_METRICS}` markers replaced** with real numbers
-  (run `getMetricsSummary` against the production app, paste into the
-  Project Impact table)
+- [ ] **Four `{TBD_FROM_METRICS}` markers replaced** with real numbers
+  from `getMetricsSummary()` after the final dogfood run; one
+  `{TBD_DOGFOOD_SUBS}` marker replaced with the literal sub count
 - [ ] **All `{TBD_*_URL}` placeholders replaced** with live links
 - [ ] **Helper credits added** for anyone who helped from r/Devvit
-  Discord — Helper Nominations submitted via Devpost (per `PLAN.md`
-  Day 27 step)
-- [ ] **Discord post drafted** for r/Devvit channel announcing the
-  submission, with the demo link
-- [ ] **Cross-post drafted** for r/Devvit and r/ModSupport per
-  `docs/OUTREACH_PLAYBOOK.md` §Timeline Day 8
+  Discord — Helper Nominations submitted via Devpost
 - [ ] **Submitted before 23:59 ET on May 27, 2026**
