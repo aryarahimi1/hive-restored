@@ -155,7 +155,16 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 function cachedFingerprintHasMatchableV1(raw: string): boolean {
   try {
     const parsed: unknown = JSON.parse(raw);
-    return isRecord(parsed) && parsed.matchableVersion === 1;
+    if (!isRecord(parsed) || parsed.matchableVersion !== 1) return false;
+    // matchableVersion alone is not enough — a fingerprint computed from
+    // insufficient activity (empty cadence + empty domain corpus) keeps the
+    // version sentinel but never gets matchableV1. Treat those as cache-miss
+    // so the next trigger event recomputes instead of bricking the user for
+    // 30 days with an unmatchable record.
+    const matchable = isRecord(parsed.matchableV1) ? parsed.matchableV1 : undefined;
+    const hasCadence = typeof matchable?.cadenceHash === 'string';
+    const hasDomain = typeof matchable?.domainHash === 'string';
+    return hasCadence || hasDomain;
   } catch {
     return false;
   }
@@ -280,6 +289,7 @@ async function fingerprintUser(
       if (claimed === 'OK') {
         try {
           await reddit.remove(target.id, true);
+          await incModAction('remove');
           await appendAction(sub, {
             type: 'system',
             title: `Auto-removed ${target.kind} from u/${username}`,
@@ -335,7 +345,7 @@ async function runMatchCheck(username: string, fpJson: string, sub: string): Pro
 
     if (!cadenceHash && !domainHash) return;
 
-    const matches = await matchAgainstThreats({ cadenceHash, domainHash });
+    const matches = await matchAgainstThreats({ cadenceHash, domainHash, currentSub: sub });
     if (matches.length === 0) {
       // Cache TTL (MATCH_TTL_SECONDS) handles natural expiration. Earlier
       // versions cleared the cache here, which wiped every match in the

@@ -20,6 +20,7 @@
 
 import { hammingDistance } from '../fingerprint/ngramCadence';
 import { jaccardSimilarity, decodeSignature } from '../fingerprint/domainHistory';
+import { isMarkedFalsePositive } from '../storage/peerReputation';
 import {
   getCadenceIdxForPrefix,
   getDomainActiveIdx,
@@ -56,13 +57,18 @@ export interface ThreatMatch {
  *
  * @param input.cadenceHash - The user's 32-hex-char SimHash (optional).
  * @param input.domainHash  - The user's base64-encoded MinHash signature (optional).
+ * @param input.currentSub  - When supplied, alerts marked false-positive by this
+ *                            sub are excluded from the returned matches. Skip the
+ *                            param in pure-fingerprint tests that don't need
+ *                            per-sub state.
  * @returns Top 3 matches sorted by similarity descending. Empty if none.
  */
 export async function matchAgainstThreats(input: {
   cadenceHash?: string;
   domainHash?: string;
+  currentSub?: string;
 }): Promise<ThreatMatch[]> {
-  const { cadenceHash, domainHash } = input;
+  const { cadenceHash, domainHash, currentSub } = input;
 
   if (!cadenceHash && !domainHash) return [];
 
@@ -149,9 +155,18 @@ export async function matchAgainstThreats(input: {
     }
   }
 
-  // Sort by similarity descending; take top 3
-  matches.sort((a, b) => b.similarity - a.similarity);
-  const top = matches.slice(0, TOP_K);
+  // Suppress alerts a moderator on this sub already marked as false-positive.
+  // Filter before sort + slice so we don't surface an FP'd alert just because
+  // we truncated the higher-similarity good matches.
+  let viable = matches;
+  if (currentSub && matches.length > 0) {
+    const fpFlags = await Promise.all(
+      matches.map((m) => isMarkedFalsePositive(currentSub, m.alertId)),
+    );
+    viable = matches.filter((_, i) => !fpFlags[i]);
+  }
 
-  return top;
+  // Sort by similarity descending; take top 3
+  viable.sort((a, b) => b.similarity - a.similarity);
+  return viable.slice(0, TOP_K);
 }
