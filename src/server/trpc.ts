@@ -19,7 +19,7 @@ import {
   isMarkedFalsePositive,
   markFalsePositive,
 } from './storage/peerReputation';
-import { getMetricsSummary } from './storage/metrics';
+import { getMetricsSummary, incFalsePositive } from './storage/metrics';
 
 /**
  * Initialization of tRPC backend
@@ -291,6 +291,7 @@ export const appRouter = t.router({
           return await withModeratorAccess(async (sub) => {
             const { firstMark } = await markFalsePositive(sub, input.alertId, input.publisherSub);
             if (firstMark) {
+              await incFalsePositive();
               await appendAction(sub, {
                 type: 'system',
                 title: 'Marked FP',

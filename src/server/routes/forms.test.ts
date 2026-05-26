@@ -54,6 +54,16 @@ vi.mock('../core/post', () => ({
   createPost: vi.fn(async () => ({ id: 'abc123' })),
 }));
 
+// Bypass moderator auth for these handler-shape tests. The check itself is
+// exercised in src/server/moderator.test.ts.
+vi.mock('../moderator', () => ({
+  requireSubredditName: vi.fn(() => 'testsub'),
+  assertCurrentUserIsModerator: vi.fn(async () => 'modUser'),
+  withModeratorAccess: vi.fn(async (fn: (s: string, u: string) => unknown) =>
+    fn('testsub', 'modUser'),
+  ),
+}));
+
 import { forms, normalisePresetName, validatePeerName } from './forms';
 import { addTrustedPeer } from '../storage/trustGraph';
 import { relativeTime, saveLastPoll, loadLastPoll } from './menu';

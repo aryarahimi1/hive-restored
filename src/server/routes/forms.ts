@@ -13,14 +13,52 @@
 
 import { Hono } from 'hono';
 import type { UiResponse } from '@devvit/web/shared';
-import { context } from '@devvit/web/server';
 
 import { addTrustedPeer } from '../storage/trustGraph';
 import { appendActionLog } from '../storage/actionLog';
 import { getPreset } from '../install/presets';
 import type { PresetName } from '../install/presets';
+import { assertCurrentUserIsModerator, requireSubredditName } from '../moderator';
 
 export const forms = new Hono();
+
+/**
+ * Resolves the active sub + asserts the caller is a moderator there.
+ * Returns a friendly UiResponse toast on failure so handlers can early-return
+ * cleanly instead of throwing a generic 400.
+ */
+async function resolveModSub(): Promise<
+  { ok: true; sub: string } | { ok: false; response: UiResponse }
+> {
+  let sub: string;
+  try {
+    sub = requireSubredditName();
+  } catch {
+    return {
+      ok: false,
+      response: {
+        showToast: {
+          text: 'Hive: could not resolve subreddit context',
+          appearance: 'neutral',
+        },
+      },
+    };
+  }
+  try {
+    await assertCurrentUserIsModerator(sub);
+  } catch {
+    return {
+      ok: false,
+      response: {
+        showToast: {
+          text: 'Hive: moderator access required to use this form',
+          appearance: 'neutral',
+        },
+      },
+    };
+  }
+  return { ok: true, sub };
+}
 
 // ---------------------------------------------------------------------------
 // Validation helpers
@@ -93,7 +131,9 @@ export function normalisePresetName(raw: unknown): PresetName | null {
  */
 forms.post('/add-peer', async (c) => {
   try {
-    const currentSub = context.subredditName ?? '<unknown>';
+    const access = await resolveModSub();
+    if (!access.ok) return c.json<UiResponse>(access.response, 200);
+    const currentSub = access.sub;
 
     // Parse the form submission body
     let body: Record<string, unknown>;
@@ -171,7 +211,9 @@ forms.post('/add-peer', async (c) => {
  */
 forms.post('/apply-preset', async (c) => {
   try {
-    const currentSub = context.subredditName ?? '<unknown>';
+    const access = await resolveModSub();
+    if (!access.ok) return c.json<UiResponse>(access.response, 200);
+    const currentSub = access.sub;
 
     // Parse form body
     let body: Record<string, unknown>;
