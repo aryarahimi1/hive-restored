@@ -30,8 +30,12 @@ function hashedModerator(sub: string, moderator: string): string {
 /** Default time-to-live for a published threat record. */
 const DEFAULT_TTL_DAYS = 30;
 
-/** Minimum gap (ms) between writes to the wiki — Reddit rate-limits ~1/min. */
-const WRITE_COOLDOWN_MS = 60_000;
+/**
+ * Minimum gap (ms) between writes to the wiki. Reddit rate-limits wiki edits
+ * at roughly one per ten seconds per page; 5 s is the conservative floor that
+ * still lets a mod ban a follow-up account within the same demo beat.
+ */
+const WRITE_COOLDOWN_MS = 5_000;
 
 type MatchableFingerprintV1 = {
   readonly version: 1;

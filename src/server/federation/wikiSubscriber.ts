@@ -22,7 +22,13 @@ import { incrementThreatCount } from '../storage/peerReputation';
 import { incFederationAlert } from '../storage/metrics';
 
 /** Max parallel peer polls to avoid overwhelming Reddit's API. */
-const CONCURRENCY_LIMIT = 5;
+/**
+ * Polls run sequentially so the JSON-array index keys
+ * (`appendToIdx` is read-modify-write on `idx:threats:active` etc.) do not
+ * race and lose alertIds. Trust circles are bounded at ~30 peers and each
+ * poll is ~150ms, so the full sweep finishes inside one 2-min scheduler tick.
+ */
+const CONCURRENCY_LIMIT = 1;
 
 /** Minimal shape the publisher writes for each alert. */
 interface RawPublishedThreat {

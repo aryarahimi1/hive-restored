@@ -93,6 +93,7 @@ export async function readActionLog(
     reverse: true,
   });
 
+  if (ids.length === 0) return [];
   const rawEntries = await redis.mGet(ids.map((item) => actionEntryKey(sub, item.member)));
   return rawEntries
     .map((raw) => {

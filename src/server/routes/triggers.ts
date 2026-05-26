@@ -337,10 +337,9 @@ async function runMatchCheck(username: string, fpJson: string, sub: string): Pro
 
     const matches = await matchAgainstThreats({ cadenceHash, domainHash });
     if (matches.length === 0) {
-      // Clear any previously-cached match — peer alert may have expired/been retracted
-      await redis.del(`match:${username}`);
-      await redis.del(`modnoted:${username}`);
-      await redis.del(`match-logged:${username}`);
+      // Cache TTL (MATCH_TTL_SECONDS) handles natural expiration. Earlier
+      // versions cleared the cache here, which wiped every match in the
+      // sub whenever a peer poll briefly returned an empty index.
       return;
     }
 
