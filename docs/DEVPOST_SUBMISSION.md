@@ -29,18 +29,19 @@ narrow scope, one demo. Hive Restored is that bet.
 
 ## What it does
 
-- **Surfaces a behavioral badge** in your modqueue the moment a flagged user
-  posts — composite score, which signals fired, which peer sub flagged the
-  same fingerprint, one-click ban / remove / modnote.
+- **Surfaces a behavioral badge** from the modqueue mod menu when a flagged
+  user posts — composite score, which signals fired, which peer sub flagged
+  the same behavior, plus ban / remove / mod-note checkboxes in one popover.
 - **Publishes opaque behavioral fingerprints** to your sub's own
   `r/<sub>/wiki/hive-threats` page when your team bans someone, so trusted
   peer subs see the threat within ~60 seconds.
-- **Lets you pick your hive** — a mod-only form to add or remove peer subs
-  (or apply a preset trust circle) without touching code.
+- **Lets you pick your hive** — a mod-menu-gated form to add or remove peer
+  subs (or apply a preset trust circle) without touching code.
 - **Defaults to shadow mode** — every install starts in alerts-only. No
   bans, no removals, no surprises. Auto-action is opt-in per signal.
-- **Logs every action for audit** — setup changes use a confirm-before-undo
-  flow, and moderation actions stay visible to the rest of the team.
+- **Logs every action for audit** — peer add/remove uses a confirm-then-remove
+  flow on the dashboard, and every peer change lands in the action log with
+  an Undo button the rest of the mod team can use.
 
 ## How we built it
 
@@ -113,23 +114,24 @@ fundamentally different thing that didn't need the killed endpoint.
 Federated behavioral fingerprints became the moat.
 
 **2. We pivoted away from a Cloudflare coordinator to a wiki broker.**
-The original `coordinator/` directory was a full Cloudflare Worker with
-HMAC signing, KV storage, Durable Object rate limiters — about 600 LOC
-and a deployment story. After a r/Devvit thread surfaced that wiki reads
-across subs are a stable, blessed primitive, we cut the whole coordinator
-and rewrote federation in ~150 LOC of `wikiPublisher.ts` +
-`wikiSubscriber.ts`. The coordinator is preserved in-repo as Plan B in
-case Reddit policy review forces us back to it. Net effect: less code,
-zero hosting cost, a cleaner privacy story.
+The original design was a full Cloudflare Worker with HMAC signing, KV
+storage, and Durable Object rate limiters — about 600 LOC and a deployment
+story. After a r/Devvit thread surfaced that wiki reads across subs are a
+stable, blessed primitive, we cut the whole coordinator and rewrote
+federation in ~150 LOC of `wikiPublisher.ts` + `wikiSubscriber.ts`. Net
+effect: less code, zero hosting cost, a cleaner privacy story, no
+external-domain allowlist to negotiate with Reddit policy.
 
 **3. False-positive rate vs. catch rate in composite scoring.** Each
 signal in isolation is noisy — a night-shift worker looks bot-like by
 time entropy alone, a topic enthusiast looks like a ring by domain
 history alone. Early dogfood showed unacceptable FP rates at the
-single-signal threshold. We resolved it by (a) requiring ≥2 of 3
-signals to fire above their individual thresholds before the composite
-score climbs into action territory, (b) shipping shadow mode as the
-default for every new install, and (c) instrumenting an explicit
+single-signal threshold. We resolved it by (a) weighting the composite
+toward multi-signal agreement — a +4/+8 bonus when 2 or 3 of the 3 signals
+all clear their individual thresholds, so a one-signal-only fire never
+crosses the auto-action band on its own; (b) shipping shadow mode as the
+default for every new install, so even a high score only writes a mod
+note until the team opts in; and (c) instrumenting an explicit
 "mark false positive" flow so the FP rate is a number we can show, not a
 number we have to guess. Tightened thresholds are reflected in
 `composite.test.ts`.
@@ -189,10 +191,14 @@ Based on beta feedback, the v2 priorities are:
 
 ## Built With
 
-`typescript`, `react`, `react-dom`, `devvit`, `devvit-web`, `hono`, `trpc`,
-`tailwind-css`, `redis`, `zod`, `vite`, `vitest`, `superjson`, `eslint`,
-`prettier`, `simhash`, `minhash`, `shannon-entropy`, `kl-divergence`,
-`reddit-api`, `wiki-api`, `node`, `javascript`
+`typescript`, `react`, `react-dom`, `devvit`, `@devvit/web`, `hono`,
+`@trpc/server`, `@trpc/client`, `@hono/trpc-server`, `tailwindcss`,
+`tailwind-merge`, `clsx`, `redis` (devvit-managed), `zod`, `vite`, `vitest`,
+`superjson`, `eslint`, `prettier`, `node:crypto`
+
+The three behavioral signals (Shannon entropy, KL divergence, SimHash,
+MinHash) are hand-rolled in `src/server/fingerprint/*.ts` against
+`node:crypto` — no third-party hashing libraries on the dependency tree.
 
 ## Try It Out
 
@@ -214,15 +220,14 @@ honest version per the OUTREACH_PLAYBOOK fallback.
 
 | Metric | Value | Source-of-truth |
 |---|---|---|
-| Time saved per mod per week | `{TBD_FROM_METRICS}` hours | Survey Q3 (OUTREACH_PLAYBOOK.md) |
-| Catch rate (flagged → mod would have actioned anyway) | `{TBD_FROM_METRICS}` % | Survey Q1 (OUTREACH_PLAYBOOK.md) |
-| False-positive rate | `{TBD_FROM_METRICS}` % | Survey Q2 + Redis key `metrics:fp` |
-| Beta sub installs during hackathon | `{TBD_FROM_METRICS}` | Outreach tracker (OUTREACH_PLAYBOOK.md §Tracking) |
-| Peer subs in trust circles (aggregate) | `{TBD_FROM_METRICS}` | Redis: count across `sub:{id}:trust` sets |
-| Total fingerprints computed | `{TBD_FROM_METRICS}` | Redis key `metrics:flags` |
-| Federated alerts indexed | `{TBD_FROM_METRICS}` | Redis key `metrics:fed:alerts` |
-| Mod actions taken via Hive badge | `{TBD_FROM_METRICS}` | `getMetricsSummary().modActions.total` |
-| Would-recommend signal (keep / recommend / uninstall) | `{TBD_FROM_METRICS}` | Survey Q5 (OUTREACH_PLAYBOOK.md) |
+| Time saved per mod per week | `{TBD_FROM_METRICS}` hours | Survey Q3 (post-beta) |
+| Catch rate (flagged → mod would have actioned anyway) | `{TBD_FROM_METRICS}` % | Survey Q1 (post-beta) |
+| False-positive rate | `{TBD_FROM_METRICS}` % | `getMetricsSummary().fpRaised` |
+| Beta sub installs during hackathon | `{TBD_FROM_METRICS}` | Outreach tracker |
+| Users flagged at the action threshold | `{TBD_FROM_METRICS}` | `getMetricsSummary().flagsRaised` |
+| Federated alerts indexed | `{TBD_FROM_METRICS}` | `getMetricsSummary().federationAlerts` |
+| Mod actions taken via the Hive badge | `{TBD_FROM_METRICS}` | `getMetricsSummary().modActions.total` |
+| Would-recommend signal (keep / recommend / uninstall) | `{TBD_FROM_METRICS}` | Survey Q5 (post-beta) |
 
 If beta installs land at zero, use the honest fallback line from
 OUTREACH_PLAYBOOK.md §"If nobody bites": *"Shadow-mode metrics from

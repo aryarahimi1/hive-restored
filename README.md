@@ -34,10 +34,10 @@ No subreddit-association lookups. No usernames or raw post/comment text shared b
 ## How it works (90 seconds)
 
 1. Mod installs Hive Restored on their sub from the Devvit App Directory
-2. Mod picks 5–30 peer subs to trust (the "hive"), and which signals to share
+2. Mod picks 5–30 peer subs to trust (the "hive") — or applies a starter / mid-size / large preset trust circle
 3. Every comment/post by a new-to-sub user triggers background fingerprinting (3 signals: posting-time entropy, n-gram writing cadence, link-domain history)
 4. When a mod in any trusted peer sub bans a user, an opaque behavioral fingerprint is published to the hive
-5. When that user (or a behavioral sibling) shows up in your sub, you see the threat badge in modqueue with one-click action
+5. When that user (or a behavioral sibling) shows up in your sub, you see the threat badge in the modqueue mod menu with ban / remove / mod-note checkboxes
 
 ## Status
 
