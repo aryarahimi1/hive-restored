@@ -101,9 +101,6 @@ npm run launch       # deploy + devvit publish (full App Directory listing)
 - [`ARCHITECTURE.md`](./ARCHITECTURE.md) — system design, federation protocol, Redis keyspace
 - [`SECURITY.md`](./SECURITY.md) — privacy posture, threat model, per-publisher salt rotation
 - [`docs/FINGERPRINT_SPEC.md`](./docs/FINGERPRINT_SPEC.md) — algorithmic spec for the three signals
-- [`docs/DEMO_SCRIPT.md`](./docs/DEMO_SCRIPT.md) — the 90-second walkthrough beat sheet
-- [`docs/DEVPOST_SUBMISSION.md`](./docs/DEVPOST_SUBMISSION.md) — the hackathon submission narrative
-- [`PLAN.md`](./PLAN.md) — the four-week build plan that produced this repo
 
 ## License
 

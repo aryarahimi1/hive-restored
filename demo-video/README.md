@@ -49,7 +49,7 @@ If the h264 render ever fails because ffmpeg is missing from a sandbox,
 use the WebM scripts — Remotion v4 ships its own ffmpeg, but the VP8
 path is the safest fallback.
 
-## Teaser scenes — `HiveDemo` (from `docs/REMOTION_SCENE_PLAN.md`)
+## Teaser scenes — `HiveDemo`
 
 | # | Sequence name | Component                | Frames    | Time          |
 |---|---------------|--------------------------|-----------|---------------|
@@ -63,7 +63,7 @@ path is the safest fallback.
 Scenes overlap by 15 frames so adjacent fades crossfade cleanly. No
 audio — add a music bed in post.
 
-## Product walkthrough scenes — `HiveProductDemo` (from `docs/PRODUCT_DEMO_FLOW.md`)
+## Product walkthrough scenes — `HiveProductDemo`
 
 | # | Sequence name      | Component             | Frames    | Time          |
 |---|--------------------|-----------------------|-----------|---------------|
