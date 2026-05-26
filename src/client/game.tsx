@@ -279,12 +279,27 @@ export const App = () => {
               <p className="mt-2 text-sm leading-5 text-[oklch(0.83_0.02_72)]">
                 {status?.detail ?? 'Fetching dashboard data from Devvit.'}
               </p>
+              {settingsDraft ? (
+                <p className="mt-3 inline-flex items-center gap-2 rounded-full bg-[oklch(0.28_0.04_58)] px-3 py-1 text-xs font-semibold text-[oklch(0.86_0.04_72)]">
+                  <span
+                    aria-hidden="true"
+                    className={
+                      settingsDraft.shadowMode
+                        ? 'h-2 w-2 rounded-full bg-[oklch(0.78_0.13_72)]'
+                        : 'h-2 w-2 rounded-full bg-[oklch(0.7_0.18_28)]'
+                    }
+                  />
+                  {settingsDraft.shadowMode
+                    ? 'Shadow mode on — advisory only'
+                    : 'Shadow mode off — auto-action enabled'}
+                </p>
+              ) : null}
             </div>
           </div>
 
           <nav
             ref={tablistRef}
-            className="mt-5 flex gap-2 overflow-x-auto"
+            className="mt-5 flex flex-wrap gap-2"
             aria-label="Dashboard sections"
             role="tablist"
             onKeyDown={handleTablistKeyDown}
@@ -314,13 +329,21 @@ export const App = () => {
         </header>
 
         {loadError ? (
-          <div className="rounded-2xl border border-[oklch(0.72_0.12_32)] bg-[oklch(0.97_0.03_42)] px-4 py-3 text-sm font-medium text-[oklch(0.34_0.06_42)]">
+          <div
+            role="alert"
+            aria-live="assertive"
+            className="rounded-2xl border border-[oklch(0.72_0.12_32)] bg-[oklch(0.97_0.03_42)] px-4 py-3 text-sm font-medium text-[oklch(0.34_0.06_42)]"
+          >
             {loadError}
           </div>
         ) : null}
 
         {message ? (
-          <div className="rounded-2xl border border-[oklch(0.82_0.05_72)] bg-[oklch(0.99_0.012_78)] px-4 py-3 text-sm font-medium text-[oklch(0.34_0.04_62)]">
+          <div
+            role="status"
+            aria-live="polite"
+            className="rounded-2xl border border-[oklch(0.82_0.05_72)] bg-[oklch(0.99_0.012_78)] px-4 py-3 text-sm font-medium text-[oklch(0.34_0.04_62)]"
+          >
             {message}
           </div>
         ) : null}
@@ -333,6 +356,10 @@ export const App = () => {
               threats={dashboard?.threats ?? []}
               actions={dashboard?.actions ?? []}
               metrics={dashboard?.metrics ?? null}
+              onGoToTrust={() => {
+                setActiveTab('trust');
+                focusTabButton('trust');
+              }}
             />
           </TabPanel>
         ) : null}
@@ -397,6 +424,7 @@ function OverviewTab(props: {
   threats: Threat[];
   actions: ActionLogEntry[];
   metrics: MetricsSummary | null;
+  onGoToTrust: () => void;
 }) {
   if (!props.overview) {
     return <OverviewSkeleton />;
@@ -406,8 +434,33 @@ function OverviewTab(props: {
     ? `${formatRelativeTime(props.overview.lastPoll.ts)} (${props.overview.lastPoll.added} new)`
     : 'Never';
 
+  const showGettingStarted = props.overview.trustedPeers === 0;
+
   return (
     <section className="grid gap-5">
+      {showGettingStarted ? (
+        <div className="rounded-3xl border-2 border-[oklch(0.62_0.16_42)] bg-[oklch(0.97_0.025_64)] p-5">
+          <p className="text-xs font-bold tracking-[0.14em] text-[oklch(0.4_0.1_38)] uppercase">
+            Get started
+          </p>
+          <h2 className="mt-2 text-2xl font-black tracking-[-0.03em]">
+            No trusted peers yet
+          </h2>
+          <p className="mt-2 max-w-xl text-sm font-medium leading-6 text-[oklch(0.36_0.04_52)]">
+            Hive needs at least one peer subreddit before any federation can happen.
+            Add one you already trust — or apply a starter trust circle preset from
+            the mod menu — and the rest of this dashboard wakes up.
+          </p>
+          <button
+            type="button"
+            onClick={props.onGoToTrust}
+            className={`mt-4 min-h-[44px] rounded-full bg-[oklch(0.58_0.17_39)] px-5 py-2 text-sm font-black text-[oklch(0.98_0.006_72)] transition hover:bg-[oklch(0.52_0.18_39)] ${FOCUS_RING}`}
+          >
+            Add your first peer →
+          </button>
+        </div>
+      ) : null}
+
       <div className="grid gap-3 md:grid-cols-4">
         <Metric label="Trusted peers" value={props.overview.trustedPeers} />
         <Metric label="Active threats" value={props.overview.activeThreats} />
@@ -583,7 +636,12 @@ function ThreatFeedTab(props: { threats: Threat[]; onRefresh: () => void }) {
 
   return (
     <Panel title="Threat Feed" detail="Incoming peer alerts indexed from trusted subreddit wiki feeds.">
-      <div className="space-y-3">
+      <div
+        className="space-y-3"
+        aria-live="polite"
+        aria-relevant="additions text"
+        aria-label={`Peer threat feed, ${props.threats.length} active`}
+      >
         {props.threats.length === 0 ? (
           <EmptyState
             title="No peer threats indexed"
@@ -818,8 +876,10 @@ function PeerSummary(props: { peer: Peer }) {
 }
 
 function reputationBadgeColor(fpRate: number): string {
-  if (fpRate > 20) return 'text-[oklch(0.55_0.15_55)]'; // amber warning
-  return 'text-[oklch(0.52_0.03_62)]'; // quiet gray
+  // AA contrast on the oklch(0.95 0.018 72) chip background: darkened from
+  // 0.55 → 0.42 to clear 4.5:1.
+  if (fpRate > 20) return 'text-[oklch(0.42_0.17_42)]'; // amber warning
+  return 'text-[oklch(0.42_0.03_62)]'; // quiet gray (also bumped from 0.52)
 }
 
 function ReputationBadge(props: { reputation: Peer['reputation'] }) {
@@ -871,7 +931,7 @@ function PeerRow(props: {
         <div className="flex items-center gap-2" data-peer-confirm>
           <span className="text-xs font-semibold text-[oklch(0.42_0.04_52)]">Remove?</span>
           <button
-            className={`rounded-full bg-[oklch(0.58_0.17_39)] px-3 py-1 text-xs font-black text-[oklch(0.98_0.006_72)] transition hover:bg-[oklch(0.52_0.18_39)] disabled:cursor-not-allowed disabled:opacity-50 ${FOCUS_RING}`}
+            className={`min-h-[44px] rounded-full bg-[oklch(0.58_0.17_39)] px-4 py-2 text-sm font-black text-[oklch(0.98_0.006_72)] transition hover:bg-[oklch(0.52_0.18_39)] disabled:cursor-not-allowed disabled:opacity-50 ${FOCUS_RING}`}
             onClick={() => {
               setConfirming(false);
               void props.onRemovePeer(props.peer.peer);
@@ -881,7 +941,7 @@ function PeerRow(props: {
             Confirm
           </button>
           <button
-            className={`rounded-full border border-[oklch(0.78_0.035_62)] px-3 py-1 text-xs font-black text-[oklch(0.42_0.04_52)] transition hover:bg-[oklch(0.91_0.026_62)] ${FOCUS_RING}`}
+            className={`min-h-[44px] rounded-full border border-[oklch(0.78_0.035_62)] px-4 py-2 text-sm font-black text-[oklch(0.42_0.04_52)] transition hover:bg-[oklch(0.91_0.026_62)] ${FOCUS_RING}`}
             onClick={() => setConfirming(false)}
           >
             Cancel
@@ -889,7 +949,7 @@ function PeerRow(props: {
         </div>
       ) : (
         <button
-          className={`rounded-full border border-[oklch(0.78_0.035_62)] px-3 py-1 text-xs font-black text-[oklch(0.42_0.04_52)] transition hover:bg-[oklch(0.91_0.026_62)] disabled:cursor-not-allowed disabled:opacity-50 ${FOCUS_RING}`}
+          className={`min-h-[44px] rounded-full border border-[oklch(0.78_0.035_62)] px-4 py-2 text-sm font-black text-[oklch(0.42_0.04_52)] transition hover:bg-[oklch(0.91_0.026_62)] disabled:cursor-not-allowed disabled:opacity-50 ${FOCUS_RING}`}
           data-peer-confirm
           onClick={() => setConfirming(true)}
           disabled={props.busy}
@@ -908,20 +968,26 @@ function ThreatRow(props: {
   onToggleExpand?: () => void;
 }) {
   const [marking, setMarking] = useState(false);
+  const [markError, setMarkError] = useState<string | null>(null);
   const reducedMotion = usePrefersReducedMotion();
   const isExpandable = props.onToggleExpand !== undefined;
   const isExpanded = props.expanded ?? false;
 
   const handleMarkFP = async () => {
     setMarking(true);
+    setMarkError(null);
     try {
       await trpc.dashboard.threats.markFalsePositive.mutate({
         alertId: props.threat.alertId,
         publisherSub: props.threat.publisherSub,
       });
       props.onRefresh?.();
-    } catch {
-      // silent — the button stays enabled on failure so the mod can retry
+    } catch (err) {
+      setMarkError(
+        err instanceof Error
+          ? `Could not mark as false positive: ${err.message}`
+          : 'Could not mark as false positive. Try again.',
+      );
     } finally {
       setMarking(false);
     }
@@ -943,8 +1009,8 @@ function ThreatRow(props: {
             <button
               className={
                 props.threat.markedFP
-                  ? `rounded-full border border-[oklch(0.75_0.04_62)] px-3 py-1 text-xs font-black text-[oklch(0.52_0.03_62)] cursor-default opacity-60 ${FOCUS_RING}`
-                  : `rounded-full border border-[oklch(0.78_0.035_62)] px-3 py-1 text-xs font-black text-[oklch(0.42_0.04_52)] transition hover:bg-[oklch(0.91_0.026_62)] disabled:cursor-not-allowed disabled:opacity-50 ${FOCUS_RING}`
+                  ? `min-h-[44px] rounded-full border border-[oklch(0.75_0.04_62)] px-4 py-2 text-sm font-black text-[oklch(0.42_0.03_62)] cursor-default opacity-60 ${FOCUS_RING}`
+                  : `min-h-[44px] rounded-full border border-[oklch(0.78_0.035_62)] px-4 py-2 text-sm font-black text-[oklch(0.42_0.04_52)] transition hover:bg-[oklch(0.91_0.026_62)] disabled:cursor-not-allowed disabled:opacity-50 ${FOCUS_RING}`
               }
               onClick={() => void handleMarkFP()}
               disabled={props.threat.markedFP || marking}
@@ -959,6 +1025,14 @@ function ThreatRow(props: {
           </div>
         </div>
       </div>
+      {markError ? (
+        <p
+          role="alert"
+          className="mt-3 rounded-2xl bg-[oklch(0.96_0.04_42)] px-3 py-2 text-xs font-semibold text-[oklch(0.36_0.08_42)]"
+        >
+          {markError}
+        </p>
+      ) : null}
       <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-3">
         <Fact label="Signals" value={signalLabel(props.threat)} />
         <Fact label="Published" value={formatRelativeTime(props.threat.publishedAt)} />
@@ -967,7 +1041,7 @@ function ThreatRow(props: {
       {isExpandable ? (
         <>
           <button
-            className={`mt-4 flex w-full items-center justify-between gap-2 rounded-2xl bg-[oklch(0.985_0.006_72)] px-3 py-2 text-xs font-black tracking-[0.12em] text-[oklch(0.42_0.04_52)] uppercase transition hover:bg-[oklch(0.95_0.018_72)] ${FOCUS_RING}`}
+            className={`mt-4 flex min-h-[44px] w-full items-center justify-between gap-2 rounded-2xl bg-[oklch(0.985_0.006_72)] px-4 py-3 text-xs font-black tracking-[0.12em] text-[oklch(0.42_0.04_52)] uppercase transition hover:bg-[oklch(0.95_0.018_72)] ${FOCUS_RING}`}
             onClick={props.onToggleExpand}
             aria-expanded={isExpanded}
             aria-controls={`threat-detail-${props.threat.alertId}`}
@@ -1096,12 +1170,17 @@ function NumberField(props: {
   value: number;
   onChange: (value: number) => void;
 }) {
+  const inputId = `number-field-${props.label.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
   return (
-    <label className="rounded-3xl bg-[oklch(0.95_0.018_72)] p-4">
-      <span className="block text-xs font-bold tracking-[0.14em] text-[oklch(0.5_0.05_58)] uppercase">
+    <div className="rounded-3xl bg-[oklch(0.95_0.018_72)] p-4">
+      <label
+        htmlFor={inputId}
+        className="block text-xs font-bold tracking-[0.14em] text-[oklch(0.42_0.05_58)] uppercase"
+      >
         {props.label}
-      </span>
+      </label>
       <input
+        id={inputId}
         className={`mt-3 w-full rounded-2xl border border-[oklch(0.82_0.035_68)] bg-[oklch(0.99_0.006_72)] px-4 py-3 text-sm font-black outline-none transition focus:border-[oklch(0.56_0.14_38)] ${INPUT_FOCUS_RING}`}
         type="number"
         min={0}
@@ -1113,7 +1192,7 @@ function NumberField(props: {
           props.onChange(next);
         }}
       />
-    </label>
+    </div>
   );
 }
 
