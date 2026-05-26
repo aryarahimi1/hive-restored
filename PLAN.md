@@ -45,7 +45,7 @@ You are here. Goal: have everything ready so the moment you sign up for the hack
 ### Days 5–7
 - Implement **Signal 2: n-gram cadence (SimHash)** — pure TS, no external API
 - Mod-facing badge in modqueue (basic Devvit Blocks UI — webview polish comes week 3)
-- Internal dogfood on a throwaway test sub with 2 mod alts
+- Internal testing on a throwaway test sub with 2 mod alts
 
 **Week-1 exit criteria**: a mod can install the app on a test sub, comment as a "bad actor" alt, and see a fingerprint computed and stored. No federation yet, no UI polish.
 

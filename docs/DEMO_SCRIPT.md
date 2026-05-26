@@ -9,7 +9,7 @@
 > (`src/client/splash.tsx`), the dashboard tabs (`src/client/game.tsx`), the
 > mod menu actions (`src/server/routes/menu.ts`), the wiki publish/subscribe
 > flow (`src/server/federation/`), and the modqueue badge form
-> (`src/server/routes/modqueueBadge.ts`). Numbers are `{TBD_FROM_DOGFOOD}` so
+> (`src/server/routes/modqueueBadge.ts`). Numbers are `{TBD_FROM_TESTING}` so
 > they can be filled in from `getMetricsSummary` in `src/server/storage/metrics.ts`
 > on shoot day.
 
@@ -28,7 +28,7 @@
 | 0:36–0:44 | Right pane stays on the wiki JSON (zoom on the three hash fields: `time`, `cadence`, `domains`). No username. No content. | "three hashes. posting-time entropy, n-gram cadence, link-domain history. no pii. no content." | This is the privacy-objection answer. Hold for two beats so the viewer reads "no pii." |
 | 0:44–0:52 | Cut to sub B's mod menu. Click "Hive: poll peers now." Toast: "Polled 10 peers: 1 added, 0 skipped." | "sub b polls. one new threat indexed." | File: `src/server/routes/menu.ts` (`poll-now`). Live-real call. Cron also runs every 2min so even if the manual click stalls the indexed count will be right. |
 | 0:52–1:00 | Cut to sub B modqueue. The same alt has just posted. Mod opens the row's "…" menu, hovers "Hive: threat badge." | "the alt rotates to sub b. open the row menu." | OBS scene `badgehit`. This is the money shot setup. Make sure the alt's new comment is fresh (post within the last 60s of recording). |
-| 1:00–1:11 | Click "Hive: threat badge." Form popover opens: composite score, signals line, matched peer sub `r/sub-A`, similarity `{TBD_FROM_DOGFOOD}%`. Click "Show peer match evidence." Receipts expand. | "score, signals, the peer sub that flagged them. receipts, not vibes." | File: `src/server/routes/modqueueBadge.ts` (`badgeFormFields`). Menu label per `devvit.json` `modqueue-badge`. Use the `evidenceDetail` paragraph copy that already ships. |
+| 1:00–1:11 | Click "Hive: threat badge." Form popover opens: composite score, signals line, matched peer sub `r/sub-A`, similarity `{TBD_FROM_TESTING}%`. Click "Show peer match evidence." Receipts expand. | "score, signals, the peer sub that flagged them. receipts, not vibes." | File: `src/server/routes/modqueueBadge.ts` (`badgeFormFields`). Menu label per `devvit.json` `modqueue-badge`. Use the `evidenceDetail` paragraph copy that already ships. |
 | 1:11–1:18 | Mod ticks "Add Hive mod note on author" and "Remove this comment." Clicks Apply actions. Success toast: "Hive badge: mod note, removed comment." | "one note, one removal. logged for the team." | `modqueueBadgeForms.post('/submit')`. Action log row should appear on next dashboard load — verified live. |
 | 1:18–1:24 | Cut to dashboard Action Log tab. The just-applied action sits at the top with an Undo button. Cursor hovers Undo. | "every action is undo-able. nothing the rest of the team can't reverse." | File: `src/client/game.tsx` `ActionLogTab`. Hover only — don't actually click Undo on camera. |
 | 1:24–1:30 | Cut to closing card. Black background, three lines of white text:<br>`opt-in. hashes only. wiki transport.`<br>`hive restored`<br>`devvit. may 2026.` | "opt-in. hashes only. built on the same wiki primitive automod already uses." | OBS scene `closecard`. Static graphic at `assets/demo/closecard.png`. Voiceover ends ~1s before card cuts. |
@@ -49,7 +49,7 @@
 - `u/hive-demo-actor` — the "bad actor" alt. Needs 30+ comments across at least 3 different subs over 5+ days so the fingerprint has real entropy. Pre-seed link-domain spread (mix of imgur, youtube, one suspect-looking shortlink). Do this on Day 23 latest.
 
 **Pre-seed data:**
-- Trust circle preset "Midsize (10 peers)" populated with believable peer names (use real mid-size mod-friendly subs from `docs/OUTREACH_PLAYBOOK.md` send list — `mechanicalkeyboards`, `buildapcsales`, etc. — these are public so it's fine to display).
+- Trust circle preset "Midsize (10 peers)" populated with believable peer names — these come from `src/server/install/presets.ts` (e.g. `mechanicalkeyboards`, `buildapcsales`); they're public mid-size mod-friendly subs and are fine to display on camera.
 - One scheduled fake-ban from `u/hive-demo-actor` on `r/hive_demo_a` queued for ~60 seconds before the recording starts, so the wiki publish lands during 0:28–0:36.
 - Action log on `r/hive_demo_b` should already have 2–3 prior entries so the "Recent activity" panel isn't empty on camera.
 
@@ -148,7 +148,7 @@ Keep the 90-second core intact (0:00–1:30). Add the following sections after t
 | 1:30–1:55 | Architecture diagram from `ARCHITECTURE.md` rendered clean. Voice over: walk through the three boxes — app A, wiki page, app B. Land on "no external service. same primitive AutoMod already uses." |
 | 1:55–2:20 | Code zoom: `wikiPublisher.ts` showing the threat record being built — highlight that only hash fields and a category enum cross the boundary. |
 | 2:20–2:40 | Federation flow diagram: trigger → fingerprint → publish → cron-poll → match-cache → badge. Eight steps, one bullet each, animated reveal. |
-| 2:40–2:55 | Mod survey quote, anonymized. Pull one line from the post-beta survey (Q3 or Q5) — `{TBD_FROM_BETA}` until the survey responses come back per `docs/OUTREACH_PLAYBOOK.md`. If zero survey responses, swap in a real r/ModSupport quote (with thread permalink on screen) about the March API loss. |
+| 2:40–2:55 | r/ModSupport quote (with thread permalink on screen) about the March API loss — easy to find by searching r/ModSupport for "Saferbot" or "Hive Protect" within May 2026. |
 | 2:55–3:00 | Hard cut back to close card, hold 2s, end. |
 
 Total runtime for the extended cut: 3:00 even.
@@ -157,11 +157,10 @@ Total runtime for the extended cut: 3:00 even.
 
 ## Numbers the user must fill in before shoot
 
-Search for `{TBD_FROM_DOGFOOD}` and `{TBD_FROM_BETA}` in this file. Three placeholders:
+Search for `{TBD_FROM_TESTING}` in this file. Two placeholders:
 
-1. **Badge composite-score / similarity %** in the 0:52–1:10 sequence — pull from `getMetricsSummary` in `src/server/storage/metrics.ts` after the dogfood run on Day 23/24.
-2. **Survey quote** in the 3-minute extended cut at 2:40 — from the post-beta survey results per `docs/OUTREACH_PLAYBOOK.md` Day 26. If no responses, use the honest fallback noted in that playbook.
-3. The narration line "ten peer subs" at 0:22 assumes the Midsize preset has 10 entries — confirm against `src/server/install/presets.ts` and adjust the spoken number if it's currently 8 or 12.
+1. **Badge composite-score / similarity %** in the 0:52–1:10 sequence — pull from `getMetricsSummary` in `src/server/storage/metrics.ts` after the final internal test run.
+2. The narration line "ten peer subs" at 0:22 assumes the Midsize preset has 10 entries — confirm against `src/server/install/presets.ts` and adjust the spoken number if it's currently 8 or 12.
 
 ---
 

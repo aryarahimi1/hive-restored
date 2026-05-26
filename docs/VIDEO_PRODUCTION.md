@@ -167,7 +167,7 @@ Burn these in during edit. All overlay text ≤4 words. Font: a clean condensed 
 | 0:41 | **no content** | center-screen, large | same as above | 900 | 2.0s | second line, same style, sequential reveal |
 | 0:46 | **polling 10 peers** | bottom-center | `oklch(0.2 0.04 58)` walnut | 700 | 3.0s | matches toast timing |
 | 0:54 | **same actor. new sub.** | top-center | `oklch(0.58 0.17 39)` red | 800 | 3.5s | this is the money-shot caption — keep it short |
-| 1:02 | **composite: {SCORE}** | top-right | `oklch(0.96 0.012 72)` cream on walnut plate | 900 | 4.0s | fill {SCORE} from dogfood metrics |
+| 1:02 | **composite: {SCORE}** | top-right | `oklch(0.96 0.012 72)` cream on walnut plate | 900 | 4.0s | fill {SCORE} from internal test metrics |
 | 1:06 | **matched: r/sub-a** | top-right, below previous | `oklch(0.78 0.08 62)` tan | 700 | 3.5s | stack under composite |
 | 1:14 | **logged for the team** | bottom-center | `oklch(0.96 0.012 72)` cream on walnut plate | 800 | 3.0s | over the apply-actions toast |
 | 1:20 | **undo-able. always.** | bottom-center | `oklch(0.96 0.012 72)` cream | 800 | 3.5s | over action log hover; do not click |
@@ -277,7 +277,7 @@ federation rides on reddit's own wiki api.
     (or narration line at 0:22 updated to the actual number)
 [ ] action log on sub b has 2–3 prior entries so "recent activity" isn't empty
 [ ] dashboard "trusted peers" tile shows a believable count, not 0
-[ ] {TBD_FROM_DOGFOOD} composite-score + similarity % filled into script
+[ ] {TBD_FROM_TESTING} composite-score + similarity % filled into script
 [ ] OBS scenes loaded: coldopen, painqueue, install, splitfederate,
     badgehit, closecard
 [ ] OBS canvas 1920×1080, output 30fps, x264 CRF 18, AAC 192k

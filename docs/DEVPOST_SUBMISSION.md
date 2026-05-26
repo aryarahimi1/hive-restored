@@ -3,8 +3,8 @@
 > **How to use this file.** Every section below maps 1:1 to a Devpost form
 > block. Paste them in order. Every `{TBD_FROM_METRICS}` marker is a number
 > you fill in from `getMetricsSummary()` in `src/server/storage/metrics.ts`
-> on the morning of submission day, after one final dogfood run. The
-> `{TBD_DOGFOOD_SUBS}` marker is the literal count of test subreddits you
+> on the morning of submission day, after one final internal test run. The
+> `{TBD_TEST_SUBS}` marker is the literal count of test subreddits you
 > ran the install path on. Source-of-truth is annotated inline.
 
 ---
@@ -126,7 +126,7 @@ external-domain allowlist to negotiate with Reddit policy.
 **3. False-positive rate vs. catch rate in composite scoring.** Each
 signal in isolation is noisy — a night-shift worker looks bot-like by
 time entropy alone, a topic enthusiast looks like a ring by domain
-history alone. Early dogfood showed unacceptable FP rates at the
+history alone. Early internal testing showed unacceptable FP rates at the
 single-signal threshold. We resolved it by (a) weighting the composite
 toward multi-signal agreement — a +4/+8 bonus when 2 or 3 of the 3 signals
 all clear their individual thresholds, so a one-signal-only fire never
@@ -142,8 +142,8 @@ number we have to guess. Tightened thresholds are reflected in
 - **Federation works end-to-end.** A ban in sub A becomes a hashed wiki
   record within seconds; sub B's cron picks it up on the next 2-minute
   tick; the next time the matching fingerprint posts in sub B, the
-  modqueue badge fires. Validated across `{TBD_DOGFOOD_SUBS}` internal
-  test subreddits during the hackathon dogfood window.
+  modqueue badge fires. Validated across `{TBD_TEST_SUBS}` internal
+  test subreddits during the hackathon testing window.
 - **No usernames or content leave a subreddit.** The threat record schema is
   enforced in `wikiPublisher.ts`: opaque hash fields, a category enum,
   and timestamps. We can prove this by reading the wiki page on camera,
@@ -211,12 +211,12 @@ MinHash) are hand-rolled in `src/server/fingerprint/*.ts` against
 ## Project Impact
 
 Numbers below come from `getMetricsSummary()` in
-`src/server/storage/metrics.ts` after internal dogfood across
-`{TBD_DOGFOOD_SUBS}` test subreddits during the hackathon window. No
+`src/server/storage/metrics.ts` after internal testing across
+`{TBD_TEST_SUBS}` test subreddits during the hackathon window. No
 post-beta moderator survey ran, so satisfaction and time-saved
 estimates are deliberately omitted rather than guessed at. The install
 and federation paths are validated end-to-end; the per-counter values
-below reflect dogfood traffic, not production load.
+below reflect internal test traffic, not production load.
 
 | Metric | Value | Source-of-truth |
 |---|---|---|
@@ -270,8 +270,8 @@ Run through this on submission-day morning before pasting into Devpost.
   modqueue badge open, dashboard threat-feed tab, dashboard action-log
   tab, trust-circle preset form)
 - [ ] **Four `{TBD_FROM_METRICS}` markers replaced** with real numbers
-  from `getMetricsSummary()` after the final dogfood run; one
-  `{TBD_DOGFOOD_SUBS}` marker replaced with the literal sub count
+  from `getMetricsSummary()` after the final internal test run; one
+  `{TBD_TEST_SUBS}` marker replaced with the literal sub count
 - [ ] **All `{TBD_*_URL}` placeholders replaced** with live links
 - [ ] **Helper credits added** for anyone who helped from r/Devvit
   Discord — Helper Nominations submitted via Devpost
