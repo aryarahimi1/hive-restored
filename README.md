@@ -14,13 +14,13 @@ This project is the answer.
 
 ## The product
 
-When a flagged user appears in your modqueue, **Hive Restored** shows:
+When a flagged user posts in your modqueue, opening Hive from the row's mod menu shows:
 
 > 🛑 **Behavioral match: 87%** to a known scam-DM ring.
 > Banned in **4 of your 12 trusted peer subs** in the last 30 days for the same pattern.
 > Account ramped karma in r/aww → first political comment 6h later → 8 sibling accounts created same week share writing-cadence fingerprint.
 >
-> [ Review evidence ]  [ Ban + report ring ]  [ Mark false positive ]
+> [ Show evidence ]  [ ☐ Add mod note  ☐ Remove  ☐ Ban ]  [ Mark false positive ]
 
 No subreddit-association lookups. No usernames or raw post/comment text shared between subs. Just **opaque behavioral hashes** and **mod-action outcomes** — federated through an opt-in trust graph the mod team controls.
 

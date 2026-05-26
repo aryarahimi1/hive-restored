@@ -1,7 +1,7 @@
 # Hive Restored — 4-Week Build Plan
 
 Hackathon window: **April 29 – May 27, 2026**.
-Current status: **Phase 1 — pre-signup scaffolding** (May 18, 2026).
+Current status: **Phase 4 — submission polish** (May 26, 2026). All four phases below are shipped; tomorrow is record-and-submit day.
 
 ---
 

@@ -27,9 +27,9 @@
 | 0:28–0:36 | Split-screen: left = r/sub-A modqueue, mod clicks Ban on a known bad-actor alt. Right = the alt's wiki page `r/sub-A/wiki/hive-threats` updating with a hashed record. | "ban a user in sub a. an anonymized fingerprint publishes to its wiki." | OBS scene `splitfederate`. The wiki page is real — `src/server/federation/wikiPublisher.ts` writes it on `onModAction`. Pre-warm: bg-actor alt already has 30+ comments so fingerprint is non-trivial. |
 | 0:36–0:44 | Right pane stays on the wiki JSON (zoom on the three hash fields: `time`, `cadence`, `domains`). No username. No content. | "three hashes. posting-time entropy, n-gram cadence, link-domain history. no pii. no content." | This is the privacy-objection answer. Hold for two beats so the viewer reads "no pii." |
 | 0:44–0:52 | Cut to sub B's mod menu. Click "Hive: poll peers now." Toast: "Polled 10 peers: 1 added, 0 skipped." | "sub b polls. one new threat indexed." | File: `src/server/routes/menu.ts` (`poll-now`). Live-real call. Cron also runs every 2min so even if the manual click stalls the indexed count will be right. |
-| 0:52–1:00 | Cut to sub B modqueue. The same alt has just posted. A Hive badge marker is visible on the row. Click it. | "the alt rotates to sub b. badge appears in queue." | OBS scene `badgehit`. This is the money shot. Make sure the alt's new comment is fresh (post within the last 60s of recording). |
-| 1:00–1:10 | Modqueue badge form opens: composite score, signals line, matched peer sub `r/sub-A`, similarity `{TBD_FROM_DOGFOOD}%`. Click "Show peer match evidence." Receipts expand. | "score, signals, the peer sub that flagged them. receipts, not vibes." | File: `src/server/routes/modqueueBadge.ts` (`badgeFormFields`). Use the `evidenceDetail` paragraph copy that already ships. |
-| 1:10–1:18 | Mod ticks "Add Hive mod note" and "Remove this comment." Clicks Apply actions. Success toast: "Hive badge: mod note, removed comment." | "one note, one removal. logged for the team." | `modqueueBadgeForms.post('/submit')`. Action log row should appear on next dashboard load — verified live. |
+| 0:52–1:00 | Cut to sub B modqueue. The same alt has just posted. Mod opens the row's "…" menu, hovers "Hive: threat badge." | "the alt rotates to sub b. open the row menu." | OBS scene `badgehit`. This is the money shot setup. Make sure the alt's new comment is fresh (post within the last 60s of recording). |
+| 1:00–1:11 | Click "Hive: threat badge." Form popover opens: composite score, signals line, matched peer sub `r/sub-A`, similarity `{TBD_FROM_DOGFOOD}%`. Click "Show peer match evidence." Receipts expand. | "score, signals, the peer sub that flagged them. receipts, not vibes." | File: `src/server/routes/modqueueBadge.ts` (`badgeFormFields`). Menu label per `devvit.json` `modqueue-badge`. Use the `evidenceDetail` paragraph copy that already ships. |
+| 1:11–1:18 | Mod ticks "Add Hive mod note on author" and "Remove this comment." Clicks Apply actions. Success toast: "Hive badge: mod note, removed comment." | "one note, one removal. logged for the team." | `modqueueBadgeForms.post('/submit')`. Action log row should appear on next dashboard load — verified live. |
 | 1:18–1:24 | Cut to dashboard Action Log tab. The just-applied action sits at the top with an Undo button. Cursor hovers Undo. | "every action is undo-able. nothing the rest of the team can't reverse." | File: `src/client/game.tsx` `ActionLogTab`. Hover only — don't actually click Undo on camera. |
 | 1:24–1:30 | Cut to closing card. Black background, three lines of white text:<br>`opt-in. hashes only. wiki transport.`<br>`hive restored`<br>`devvit. may 2026.` | "opt-in. hashes only. built on the same wiki primitive automod already uses." | OBS scene `closecard`. Static graphic at `assets/demo/closecard.png`. Voiceover ends ~1s before card cuts. |
 
@@ -68,8 +68,8 @@
 **Must be live (no splice):**
 - 0:28–0:36 — the ban-in-sub-A → wiki publish. If this is faked the demo is dead.
 - 0:44–0:52 — the poll-now toast. The "1 added" number is the proof.
-- 0:52–1:00 — the badge appearing on the new comment in sub B.
-- 1:00–1:18 — the form interaction. One continuous click-through.
+- 0:52–1:00 — opening the row mod menu on the alt's fresh comment in sub B.
+- 1:00–1:18 — clicking "Hive: threat badge," the form popover opening, and the action submit. One continuous click-through.
 
 **Can be cut cleanly (splice with hard cut, no fade):**
 - 0:00–0:10 cold open — entirely b-roll.
@@ -98,9 +98,9 @@
 *Likelihood:* medium. Reddit's wiki cache has been observed at 15–45s on hot days.
 *Recovery:* the cron already polled every 2 min, so the threat is almost certainly already indexed. If `poll-now` returns "0 added," switch narration line to "sub b already indexed this peer's threat — let's see the badge" and cut straight to 0:52. If even the index is cold, fall back to the dev panel: pre-seeded threat records can be loaded via the test-only `/internal/dev/seed-threat` route. Mention in voice: keep it as "let's jump to the indexed state" — do not lie.
 
-**Risk 2 — the alt's new comment in sub B doesn't get a fingerprint computed in time, so no badge appears.**
+**Risk 2 — the alt's new comment in sub B doesn't get a fingerprint computed in time, so the form opens with no peer match.**
 *Likelihood:* medium-high. `onCommentSubmit` is async; first-comment-for-a-user can take 2–8 seconds for the fingerprint, plus match-cache write.
-*Recovery:* warm the alt 10 minutes before the shoot by having it comment once in sub B with throwaway content, then delete the comment. The fingerprint and match cache persist in Redis. The on-camera comment then surfaces the badge near-instantly. **This is the single highest-risk moment in the script — rehearse it three times before the real take.**
+*Recovery:* warm the alt 10 minutes before the shoot by having it comment once in sub B with throwaway content, then delete the comment. The fingerprint and match cache persist in Redis. The on-camera "Hive: threat badge" click then surfaces the full match popover near-instantly. **This is the single highest-risk moment in the script — rehearse it three times before the real take.**
 
 **Risk 3 — Devvit form modal doesn't render correctly inside the modqueue context (a known intermittent on new accounts).**
 *Likelihood:* low-medium.
@@ -133,7 +133,7 @@ Use this aspect ratio: 1080×1350 (portrait, plays well in Reddit feeds and Disc
 |---|---|---|
 | 0:00–0:03 | r/ModSupport headlines, red vignette | "march sixth. reddit killed the sub-association api." |
 | 0:03–0:10 | Split-screen ban-in-A → wiki page update | "ban a user. anonymized fingerprint publishes to your sub's wiki." |
-| 0:10–0:18 | Sub B modqueue, badge appears, badge form opens with score + matched peer | "same user shows up in your peer sub's queue. badge with receipts." |
+| 0:10–0:18 | Sub B modqueue, mod opens row menu, clicks "Hive: threat badge," form opens with score + matched peer | "same user shows up in your peer sub's queue. open the row menu, receipts." |
 | 0:18–0:24 | Quick cut: modnote written, action log entry, Undo button highlighted | "one note, one removal, undo-able by the whole team." |
 | 0:24–0:30 | Close card | "opt-in. hashes only. hive restored on devvit." |
 
