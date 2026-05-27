@@ -37,3 +37,6 @@ coverage/
 .vitest/
 .claude/
 .pi/
+
+AGENTS.md
+demo-video/
